@@ -4,7 +4,7 @@ import { site } from "../data/site";
 
 const {
   title = `${site.name} - 技术团队展示`,
-  description = site.description,
+  description = site.typewriterLines[0] ?? site.name,
 } = Astro.props;
 ---
 

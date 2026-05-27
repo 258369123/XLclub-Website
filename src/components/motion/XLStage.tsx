@@ -22,6 +22,9 @@ type PageMeta = {
 const MOBILE_STAGE_WIDTH = 540;
 const MOBILE_STAGE_HEIGHT = 960;
 const MOBILE_STAGE_BREAKPOINT = 900;
+const TYPEWRITER_TYPE_DELAY = 52;
+const TYPEWRITER_DELETE_DELAY = 28;
+const TYPEWRITER_HOLD_DELAY = 1600;
 
 const pages: PageMeta[] = [
   { id: "home", number: "01", label: "首页" },
@@ -89,6 +92,92 @@ function isRealLink(href?: string) {
 
 function isPrimaryMemberTrack(track: string) {
   return primaryMemberTracks.some((item) => item === track);
+}
+
+function BrandMark() {
+  const [imageFailed, setImageFailed] = useState(false);
+  const logo = site.logo;
+  const fallbackText =
+    logo.mode === "text" && logo.text.trim()
+      ? logo.text.trim()
+      : getBrandMark(site.name);
+
+  if (logo.mode === "image" && logo.src && !imageFailed) {
+    return (
+      <img
+        src={logo.src}
+        alt={logo.alt ?? `${site.name} 标志`}
+        className="size-full object-contain p-1"
+        decoding="async"
+        onError={() => setImageFailed(true)}
+      />
+    );
+  }
+
+  return (
+    <span className="font-mono text-sm font-black tracking-normal">
+      {fallbackText}
+    </span>
+  );
+}
+
+function TypewriterText({ lines }: { lines: string[] }) {
+  const phrases =
+    lines.length > 0 ? lines : [site.typewriterLines[0] ?? site.name];
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [visibleLength, setVisibleLength] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const phrase = phrases[phraseIndex] ?? "";
+  const visibleText = phrase.slice(0, visibleLength);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (reduceMotion || phrases.length <= 1) {
+      setVisibleLength(phrase.length);
+      setIsDeleting(false);
+      return;
+    }
+
+    const isComplete = visibleLength === phrase.length;
+    const isEmpty = visibleLength === 0;
+    const delay = isComplete
+      ? TYPEWRITER_HOLD_DELAY
+      : isDeleting
+        ? TYPEWRITER_DELETE_DELAY
+        : TYPEWRITER_TYPE_DELAY;
+
+    const timer = window.setTimeout(() => {
+      if (!isDeleting && isComplete) {
+        setIsDeleting(true);
+        return;
+      }
+
+      if (isDeleting && isEmpty) {
+        setIsDeleting(false);
+        setPhraseIndex((current) => (current + 1) % phrases.length);
+        return;
+      }
+
+      setVisibleLength((current) => current + (isDeleting ? -1 : 1));
+    }, delay);
+
+    return () => window.clearTimeout(timer);
+  }, [isDeleting, phrase, phrases.length, visibleLength]);
+
+  useEffect(() => {
+    setVisibleLength(0);
+    setIsDeleting(false);
+  }, [phraseIndex]);
+
+  return (
+    <p className="typewriter-copy mt-7 max-w-xl text-lg leading-8 text-fog/86">
+      <span>{visibleText}</span>
+      <span className="typewriter-cursor" aria-hidden="true" />
+    </p>
+  );
 }
 
 export default function XLStage() {
@@ -169,9 +258,7 @@ export default function XLStage() {
                 aria-label="返回首页"
               >
                 <span className="grid size-9 place-items-center border border-paper/20 bg-paper text-ink">
-                  <span className="font-mono text-sm font-black tracking-normal">
-                    {getBrandMark(site.name)}
-                  </span>
+                  <BrandMark />
                 </span>
                 <span className="brand-text leading-none">
                   <span className="block font-mono text-sm font-semibold tracking-[0.24em] text-paper">
@@ -316,9 +403,7 @@ function HomePanel() {
         <h1 className="mt-6 text-6xl font-black leading-[0.9] tracking-normal text-paper sm:text-7xl xl:text-8xl">
           {site.name}
         </h1>
-        <p className="mt-7 max-w-xl text-lg leading-8 text-fog/86">
-          {site.description}
-        </p>
+        <TypewriterText lines={site.typewriterLines} />
         <div className="mt-8 flex flex-wrap gap-3">
           <a
             href={site.join}
