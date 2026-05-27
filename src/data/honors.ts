@@ -1,3 +1,5 @@
+import { site } from "./site";
+
 export type Honor = {
   year: string;
   title: string;
@@ -8,7 +10,7 @@ export type Honor = {
 export const honors: Honor[] = [
   {
     year: "2026",
-    title: "XLclub 春季建设周",
+    title: `${site.name} 春季建设周`,
     result: "完成 12 个演示项目",
     tag: "内部训练",
   },
@@ -36,16 +38,4 @@ export const honors: Honor[] = [
     result: "沉淀 18 篇复盘",
     tag: "研究复盘",
   },
-  {
-    year: "2024",
-    title: "夺旗赛专项训练周期",
-    result: "沉淀 18 篇复盘",
-    tag: "研究复盘",
-  },
-  {
-    year: "2024",
-    title: "夺旗赛专项训练周期",
-    result: "沉淀 18 篇复盘",
-    tag: "研究复盘",
-  }
 ];

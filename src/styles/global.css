@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-mono:
+    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --color-ink: #101216;
   --color-paper: #f5f2ea;
   --color-fog: #d9d4c8;
@@ -29,10 +32,25 @@ body {
   background:
     linear-gradient(90deg, rgba(245, 242, 234, 0.055) 1px, transparent 1px),
     linear-gradient(180deg, rgba(245, 242, 234, 0.045) 1px, transparent 1px),
-    linear-gradient(135deg, transparent 0 54%, rgba(92, 198, 184, 0.09) 54% 55%, transparent 55% 100%),
-    linear-gradient(28deg, transparent 0 67%, rgba(224, 100, 92, 0.08) 67% 68%, transparent 68% 100%),
+    linear-gradient(
+      135deg,
+      transparent 0 54%,
+      rgba(92, 198, 184, 0.09) 54% 55%,
+      transparent 55% 100%
+    ),
+    linear-gradient(
+      28deg,
+      transparent 0 67%,
+      rgba(224, 100, 92, 0.08) 67% 68%,
+      transparent 68% 100%
+    ),
     #101216;
-  background-size: 64px 64px, 64px 64px, 100% 100%, 100% 100%, auto;
+  background-size:
+    64px 64px,
+    64px 64px,
+    100% 100%,
+    100% 100%,
+    auto;
   color: #f5f2ea;
   font-family: var(--font-sans);
   text-rendering: geometricPrecision;
@@ -61,29 +79,6 @@ select {
   background: linear-gradient(rgba(245, 242, 234, 0.025) 50%, transparent 50%);
   background-size: 100% 4px;
   mix-blend-mode: soft-light;
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-.section-shell {
-  width: min(1180px, calc(100vw - 32px));
-  margin-inline: auto;
-}
-
-.hairline {
-  position: relative;
-}
-
-.hairline::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245, 242, 234, 0.36), transparent);
 }
 
 .vertical-label {
@@ -133,6 +128,62 @@ select {
   background: rgba(245, 242, 234, 0.08);
 }
 
+.about-article {
+  padding-right: 1rem;
+}
+
+.about-article-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, #101216 0%, rgba(16, 18, 22, 0.96) 100%);
+  padding-bottom: 0.95rem;
+}
+
+.about-article-head h3 {
+  margin: 0;
+  color: #f5f2ea;
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.about-article-section h4 {
+  margin: 0 0 0.85rem;
+  color: #5cc6b8;
+  font-size: 1.18rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.about-article-section p {
+  margin: 0;
+  color: rgba(245, 242, 234, 0.86);
+  font-size: 1rem;
+  line-height: 1.9;
+}
+
+.about-article-section p + p {
+  margin-top: 0.75rem;
+}
+
+.about-article-section ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding-left: 1.15rem;
+  color: rgba(245, 242, 234, 0.86);
+}
+
+.about-article-section li {
+  padding-left: 0.15rem;
+  line-height: 1.65;
+}
+
+.about-article-section li::marker {
+  color: #f5f2ea;
+}
+
 [data-stage="mobile"] .xl-stage-bar {
   width: calc(100% - 24px);
 }
@@ -173,8 +224,40 @@ select {
   width: 3rem;
 }
 
+[data-stage="mobile"] .about-panel,
+[data-stage="mobile"] .honors-panel {
+  align-items: start;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
 [data-stage="mobile"] .about-scroll {
-  max-height: 360px;
+  max-height: none;
+}
+
+[data-stage="mobile"] .about-article {
+  padding-right: 0.75rem;
+}
+
+[data-stage="mobile"] .about-article-head {
+  padding-bottom: 0.7rem;
+}
+
+[data-stage="mobile"] .about-article-head h3 {
+  font-size: 2.7rem;
+}
+
+[data-stage="mobile"] .about-article-section h4 {
+  font-size: 1rem;
+}
+
+[data-stage="mobile"] .about-article-section p,
+[data-stage="mobile"] .about-article-section li {
+  font-size: 0.875rem;
+}
+
+[data-stage="mobile"] .honors-table {
+  max-height: 510px;
 }
 
 .stage-scroll {
@@ -187,20 +270,12 @@ select {
 }
 
 .about-scroll {
-  scrollbar-color: rgba(92, 198, 184, 0.72) rgba(245, 242, 234, 0.08);
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .about-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.about-scroll::-webkit-scrollbar-track {
-  background: rgba(245, 242, 234, 0.08);
-}
-
-.about-scroll::-webkit-scrollbar-thumb {
-  background: rgba(92, 198, 184, 0.72);
+  display: none;
 }
 
 .member-intro {
