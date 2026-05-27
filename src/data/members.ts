@@ -1,0 +1,106 @@
+export type MemberTrack = "安全研究" | "工程开发" | "视觉设计" | "组织运营";
+
+export type Member = {
+  id: string;
+  name: string;
+  grade: string;
+  track: MemberTrack;
+  role: string;
+  avatar: string;
+  intro: string;
+  links: {
+    label: string;
+    href: string;
+  }[];
+};
+
+export const tracks: Array<"全部" | MemberTrack> = [
+  "全部",
+  "安全研究",
+  "工程开发",
+  "视觉设计",
+  "组织运营",
+];
+
+export const members: Member[] = [
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "#" }],
+  },
+  {
+    id: "x-02",
+    name: "林澈",
+    grade: "2026 级",
+    track: "工程开发",
+    role: "前端系统",
+    avatar: "林",
+    intro: "负责界面系统、数据驱动页面和可复用组件，把展示页做成长期可维护的工程。",
+    links: [{ label: "代码", href: "#" }],
+  },
+  {
+    id: "x-03",
+    name: "砚池",
+    grade: "2025 级",
+    track: "安全研究",
+    role: "逆向工程",
+    avatar: "砚",
+    intro: "做二进制分析、自动化脚本和竞赛题目复盘，偏爱把复杂流程拆成工具链。",
+    links: [{ label: "笔记", href: "#" }],
+  },
+  {
+    id: "x-04",
+    name: "弥拉",
+    grade: "2025 级",
+    track: "视觉设计",
+    role: "视觉方向",
+    avatar: "弥",
+    intro: "负责团队识别、动效语言、页面节奏和内容呈现，确保技术站点不只是资料堆叠。",
+    links: [{ label: "作品", href: "#" }],
+  },
+  {
+    id: "x-05",
+    name: "轨道",
+    grade: "2024 级",
+    track: "工程开发",
+    role: "平台工程",
+    avatar: "轨",
+    intro: "维护内部服务、静态发布流水线和部署检查，让内容更新变成低成本动作。",
+    links: [{ label: "实验室", href: "#" }],
+  },
+  {
+    id: "x-06",
+    name: "诺亚",
+    grade: "2024 级",
+    track: "组织运营",
+    role: "社群运营",
+    avatar: "诺",
+    intro: "协调分享会、读书组、成员加入和外部合作，把团队节奏从热情变成制度。",
+    links: [{ label: "邮箱", href: "#" }],
+  },
+  {
+    id: "x-07",
+    name: "风筝",
+    grade: "2023 级",
+    track: "安全研究",
+    role: "二进制利用",
+    avatar: "风",
+    intro: "研究堆利用、沙箱逃逸和调试工作流，偏向把底层细节讲到可以复现。",
+    links: [{ label: "题解", href: "#" }],
+  },
+  {
+    id: "x-08",
+    name: "如恩",
+    grade: "2023 级",
+    track: "组织运营",
+    role: "知识库",
+    avatar: "如",
+    intro: "把分散成果整理成文档、课程材料和可检索记录，负责团队知识库质量。",
+    links: [{ label: "维基", href: "#" }],
+  },
+];

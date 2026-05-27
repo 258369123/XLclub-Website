@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" role="img" aria-label="XLclub wordmark">
+  <rect width="960" height="420" fill="#101216"/>
+  <g fill="none" stroke="#f5f2ea" stroke-width="2" opacity=".18">
+    <path d="M72 70h816M72 140h816M72 210h816M72 280h816M72 350h816"/>
+    <path d="M120 40v340M240 40v340M360 40v340M480 40v340M600 40v340M720 40v340M840 40v340"/>
+  </g>
+  <path d="M158 104h56l78 92 78-92h56L319 226l111 132h-58l-82-98-82 98h-58l111-132L158 104Z" fill="#f5f2ea"/>
+  <path d="M493 104h50v210h140v44H493V104Z" fill="#f5f2ea"/>
+  <path d="M739 104h52v254h-52z" fill="#5cc6b8"/>
+  <path d="M806 104h43v254h-43z" fill="#e0645c"/>
+  <path d="M92 92h42v42H92zM826 286h42v42h-42z" fill="#4c7bb7"/>
+  <path d="M94 328h184" stroke="#5cc6b8" stroke-width="10"/>
+  <path d="M682 86h184" stroke="#e0645c" stroke-width="10"/>
+</svg>
