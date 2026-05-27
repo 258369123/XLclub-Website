@@ -1,11 +1,15 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { focusAreas, site, stats } from "../../data/site";
 import { honors } from "../../data/honors";
-import { members, tracks, type MemberTrack } from "../../data/members";
+import { members, primaryMemberTracks, tracks, type Member, type MemberFilter } from "../../data/members";
 
 type PageId = "home" | "about" | "members" | "honors";
-type ActiveTrack = "全部" | MemberTrack;
+type ActiveTrack = MemberFilter;
+
+const MOBILE_STAGE_WIDTH = 540;
+const MOBILE_STAGE_HEIGHT = 960;
+const MOBILE_STAGE_BREAKPOINT = 760;
 
 const pages: Array<{ id: PageId; number: string; label: string }> = [
   { id: "home", number: "01", label: "首页" },
@@ -24,134 +28,218 @@ function classNames(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
+function isImageAvatar(value: string) {
+  const avatar = value.trim();
+
+  return (
+    avatar.startsWith("http://") ||
+    avatar.startsWith("https://") ||
+    avatar.startsWith("//") ||
+    avatar.startsWith("/") ||
+    /\.(avif|gif|jpe?g|png|svg|webp)$/i.test(avatar)
+  );
+}
+
+function getAvatarImageSrc(value: string) {
+  const avatar = value.trim();
+
+  if (!avatar || !isImageAvatar(avatar)) return null;
+  if (avatar.startsWith("http://") || avatar.startsWith("https://") || avatar.startsWith("//")) return avatar;
+  if (avatar.startsWith("/")) return avatar;
+
+  return `/${avatar.replace(/^\.?\//, "")}`;
+}
+
+function getAvatarText(member: Member) {
+  const avatar = member.avatar.trim();
+
+  if (avatar && !isImageAvatar(avatar)) return avatar.slice(0, 2);
+  return member.name.slice(0, 1);
+}
+
+function isRealLink(href?: string) {
+  return Boolean(href && href.trim() && href.trim() !== "#");
+}
+
+function isPrimaryMemberTrack(track: string) {
+  return primaryMemberTracks.some((item) => item === track);
+}
+
 export default function XLStage() {
   const [page, setPage] = useState<PageId>("home");
   const [track, setTrack] = useState<ActiveTrack>("全部");
+  const [viewport, setViewport] = useState({ width: 1280, height: 720 });
+
+  useEffect(() => {
+    const updateViewport = () => {
+      const visualViewport = window.visualViewport;
+
+      setViewport({
+        width: visualViewport?.width ?? window.innerWidth,
+        height: visualViewport?.height ?? window.innerHeight,
+      });
+    };
+
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    window.visualViewport?.addEventListener("resize", updateViewport);
+
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+      window.visualViewport?.removeEventListener("resize", updateViewport);
+    };
+  }, []);
 
   const activePage = pages.find((item) => item.id === page) ?? pages[0];
   const activeIndex = pages.findIndex((item) => item.id === page);
   const nextPage = pages[(activeIndex + 1) % pages.length];
+  const isMobileStage = viewport.width <= MOBILE_STAGE_BREAKPOINT;
+  const mobileStageScale = Math.min(
+    viewport.width / MOBILE_STAGE_WIDTH,
+    viewport.height / MOBILE_STAGE_HEIGHT,
+  );
 
   const visibleMembers = useMemo(
-    () => members.filter((member) => track === "全部" || member.track === track),
+    () =>
+      members.filter((member) => {
+        if (track === "全部") return true;
+        if (track === "其他") return !isPrimaryMemberTrack(member.track);
+
+        return member.track === track;
+      }),
     [track],
   );
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-ink text-paper">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(245,242,234,0.055)_1px,transparent_1px),linear-gradient(180deg,rgba(245,242,234,0.045)_1px,transparent_1px)] bg-[size:64px_64px]" />
-      <div className="pointer-events-none absolute -left-16 bottom-8 h-8 w-[56rem] -rotate-[148deg] bg-coral/12" />
-      <div className="pointer-events-none absolute right-[9vw] top-[14vh] h-28 w-2 bg-coral" />
+      <div className={classNames(isMobileStage ? "absolute inset-0 grid place-items-center" : "absolute inset-0")}>
+      <div
+        className={classNames(
+          "xl-stage-frame overflow-hidden bg-ink",
+          isMobileStage ? "origin-center" : "",
+        )}
+        data-stage={isMobileStage ? "mobile" : "desktop"}
+        style={
+          isMobileStage
+            ? {
+                width: MOBILE_STAGE_WIDTH,
+                height: MOBILE_STAGE_HEIGHT,
+                transform: `scale(${mobileStageScale})`,
+              }
+            : undefined
+        }
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(245,242,234,0.055)_1px,transparent_1px),linear-gradient(180deg,rgba(245,242,234,0.045)_1px,transparent_1px)] bg-[size:64px_64px]" />
+        <div className="pointer-events-none absolute -left-16 bottom-8 h-8 w-[56rem] -rotate-[148deg] bg-coral/12" />
+        <div className="pointer-events-none absolute right-[9vw] top-[14vh] h-28 w-2 bg-coral" />
 
-      <header className="absolute left-0 right-0 top-0 z-20 border-b border-paper/12 bg-ink/82 backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-[min(1180px,calc(100vw-32px))] items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={() => setPage("home")}
-            className="flex items-center gap-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
-            aria-label="返回首页"
-          >
-            <span className="grid size-9 place-items-center border border-paper/20 bg-paper text-ink">
-              <span className="font-mono text-sm font-black tracking-normal">XL</span>
-            </span>
-            <span className="hidden leading-none sm:block">
-              <span className="block font-mono text-sm font-semibold tracking-[0.24em] text-paper">{site.name}</span>
-              <span className="mt-1 block text-[10px] uppercase tracking-[0.32em] text-steel">技术团队</span>
-            </span>
-          </button>
+        <header className="absolute left-0 right-0 top-0 z-20 border-b border-paper/12 bg-ink/82 backdrop-blur-md">
+          <div className="xl-stage-bar flex h-16 items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={() => setPage("home")}
+              className="flex items-center gap-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+              aria-label="返回首页"
+            >
+              <span className="grid size-9 place-items-center border border-paper/20 bg-paper text-ink">
+                <span className="font-mono text-sm font-black tracking-normal">XL</span>
+              </span>
+              <span className="brand-text leading-none">
+                <span className="block font-mono text-sm font-semibold tracking-[0.24em] text-paper">{site.name}</span>
+                <span className="mt-1 block text-[10px] uppercase tracking-[0.32em] text-steel">技术团队</span>
+              </span>
+            </button>
 
-          <div className="hidden items-center gap-1 md:flex">
+            <div className="top-page-nav flex items-center gap-1">
+              {pages.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setPage(item.id)}
+                  className={classNames(
+                    "px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal",
+                    page === item.id ? "text-signal" : "text-fog/76 hover:text-paper",
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <a
+              href={site.join}
+              className="join-link inline-flex h-10 items-center gap-2 border border-signal bg-signal px-4 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-ink transition hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+            >
+              加入
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </header>
+
+        <aside className="xl-stage-left-rail absolute z-10 border-r border-paper/12">
+          <div className="flex h-full flex-col items-center justify-between py-10">
+            <div className="vertical-label font-mono text-xs tracking-[0.32em] text-steel">团队坐标</div>
+            <div className="flex flex-col items-center gap-4">
+              <span className="h-20 w-px bg-paper/20" />
+              <span className="font-mono text-2xl font-black text-paper">{activePage.number}</span>
+              <span className="h-20 w-px bg-paper/20" />
+            </div>
+            <div className="vertical-label font-mono text-xs tracking-[0.32em] text-steel">技术展示</div>
+          </div>
+        </aside>
+
+        <nav className="xl-stage-right-rail absolute z-10 border-l border-paper/12">
+          <div className="flex h-full flex-col items-center justify-center gap-5">
             {pages.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setPage(item.id)}
                 className={classNames(
-                  "px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal",
-                  page === item.id ? "text-signal" : "text-fog/76 hover:text-paper",
+                  "vertical-label border-l px-4 py-2 font-mono text-xs tracking-[0.28em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal",
+                  page === item.id
+                    ? "border-signal text-signal"
+                    : "border-paper/20 text-steel hover:border-paper/60 hover:text-paper",
                 )}
               >
                 {item.label}
               </button>
             ))}
-          </div>
-
-          <a
-            href={site.join}
-            className="inline-flex h-10 items-center gap-2 border border-signal bg-signal px-4 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-ink transition hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
-          >
-            加入
-            <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </header>
-
-      <aside className="absolute bottom-20 left-0 top-16 z-10 hidden w-[10vw] min-w-24 border-r border-paper/12 lg:block">
-        <div className="flex h-full flex-col items-center justify-between py-10">
-          <div className="vertical-label font-mono text-xs tracking-[0.32em] text-steel">团队坐标</div>
-          <div className="flex flex-col items-center gap-4">
-            <span className="h-20 w-px bg-paper/20" />
-            <span className="font-mono text-2xl font-black text-paper">{activePage.number}</span>
-            <span className="h-20 w-px bg-paper/20" />
-          </div>
-          <div className="vertical-label font-mono text-xs tracking-[0.32em] text-steel">技术展示</div>
-        </div>
-      </aside>
-
-      <nav className="absolute bottom-20 right-0 top-16 z-10 hidden w-[10vw] min-w-24 border-l border-paper/12 lg:block">
-        <div className="flex h-full flex-col items-center justify-center gap-5">
-          {pages.map((item) => (
             <button
-              key={item.id}
               type="button"
-              onClick={() => setPage(item.id)}
-              className={classNames(
-                "vertical-label border-l px-4 py-2 font-mono text-xs tracking-[0.28em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal",
-                page === item.id
-                  ? "border-signal text-signal"
-                  : "border-paper/20 text-steel hover:border-paper/60 hover:text-paper",
-              )}
+              onClick={() => setPage(nextPage.id)}
+              className="mt-8 grid size-14 place-items-center border border-paper/18 bg-ink text-paper transition hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+              aria-label={`切换到${nextPage.label}`}
             >
-              {item.label}
+              <span className="text-2xl" aria-hidden="true">
+                →
+              </span>
             </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setPage(nextPage.id)}
-            className="mt-8 grid size-14 place-items-center border border-paper/18 bg-ink text-paper transition hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
-            aria-label={`切换到${nextPage.label}`}
-          >
-            <span className="text-2xl" aria-hidden="true">
-              →
-            </span>
-          </button>
-        </div>
-      </nav>
-
-      <footer className="absolute bottom-0 left-0 right-0 z-20 border-t border-paper/12 bg-ink/82 backdrop-blur-md">
-        <div className="mx-auto flex h-20 w-[min(1180px,calc(100vw-32px))] items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
-          <span>联系 / 公开邮箱</span>
-          <span>{activePage.number} / {activePage.label}</span>
-        </div>
-      </footer>
-
-      <main className="absolute inset-x-0 bottom-20 top-16 z-0 lg:left-[10vw] lg:right-[10vw]">
-        <div className="relative mx-auto h-full w-full max-w-[1180px] overflow-hidden px-4 xl:px-0">
-          <div className="absolute left-0 top-5 z-10 flex items-center gap-4 md:top-8">
-            <span className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-signal">
-              {activePage.number}
-            </span>
-            <span className="h-px w-20 bg-paper/32" />
-            <span className="font-mono text-xs uppercase tracking-[0.28em] text-steel">欢迎</span>
           </div>
+        </nav>
 
-          <AnimatePresence mode="wait">
+        <footer className="absolute bottom-0 left-0 right-0 z-20 border-t border-paper/12 bg-ink/82 backdrop-blur-md">
+          <div className="xl-stage-bar flex h-20 items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
+            <span>联系 / 公开邮箱</span>
+            <span>{activePage.number} / {activePage.label}</span>
+          </div>
+        </footer>
+
+        <main className="xl-stage-main absolute z-0">
+          <div className="relative mx-auto h-full w-full max-w-[1180px] overflow-hidden px-4 xl:px-0">
+            <div className="stage-marker absolute left-0 top-5 z-10 flex items-center gap-4 md:top-8">
+              <span className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-signal">
+                {activePage.number}
+              </span>
+              <span className="h-px w-20 bg-paper/32" />
+              <span className="font-mono text-xs uppercase tracking-[0.28em] text-steel">欢迎</span>
+            </div>
+
             <motion.section
               key={page}
               variants={pageVariants}
               initial="enter"
               animate="center"
-              exit="exit"
               transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0 pt-20 md:pt-24"
             >
@@ -162,25 +250,10 @@ export default function XLStage() {
               )}
               {page === "honors" && <HonorsPanel />}
             </motion.section>
-          </AnimatePresence>
 
-        </div>
-      </main>
-
-      <div className="absolute bottom-20 left-0 right-0 z-30 grid grid-cols-4 border-y border-paper/12 bg-ink/92 md:hidden">
-        {pages.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setPage(item.id)}
-            className={classNames(
-              "h-12 border-r border-paper/12 font-mono text-xs tracking-[0.18em] last:border-r-0",
-              page === item.id ? "bg-paper text-ink" : "text-fog",
-            )}
-          >
-            {item.label}
-          </button>
-        ))}
+          </div>
+        </main>
+      </div>
       </div>
     </div>
   );
@@ -315,32 +388,30 @@ function MembersPanel({
 
       <motion.div layout className="stage-scroll grid min-h-0 flex-1 gap-3 overflow-y-auto pr-1 md:grid-cols-2">
         <AnimatePresence mode="popLayout">
-          {visibleMembers.map((member) => (
+          {visibleMembers.map((member, index) => (
             <motion.article
               layout
-              key={member.id}
+              key={`${member.id}-${index}`}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="grid min-h-0 grid-cols-[56px_1fr] gap-4 border border-paper/12 bg-paper/[0.035] p-4 transition hover:border-signal/54 hover:bg-paper/[0.055]"
+              className="grid h-28 overflow-hidden grid-cols-[48px_minmax(0,1fr)] gap-3 border border-paper/12 bg-paper/[0.035] p-3 transition hover:border-signal/54 hover:bg-paper/[0.055]"
             >
-              <div className="grid size-14 place-items-center border border-paper/16 bg-ink font-mono text-base font-black text-paper">
-                {member.avatar}
-              </div>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg font-semibold leading-6 text-paper">{member.name}</h3>
-                    <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
+              <MemberAvatar member={member} />
+              <div className="min-w-0 overflow-hidden">
+                <div className="flex min-w-0 items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="truncate text-lg font-semibold leading-5 text-paper">{member.name}</h3>
+                    <p className="mt-1 truncate font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
                       {member.grade} / {member.track}
                     </p>
                   </div>
-                  <span className="border border-cobalt/50 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-cobalt">
+                  <span className="max-w-24 shrink-0 truncate border border-cobalt/50 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-cobalt">
                     {member.role}
                   </span>
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-fog/84 lg:line-clamp-3">
+                <p className="member-intro mt-2 text-sm leading-5 text-fog/84">
                   {member.intro}
                 </p>
               </div>
@@ -349,6 +420,50 @@ function MembersPanel({
         </AnimatePresence>
       </motion.div>
     </div>
+  );
+}
+
+function MemberAvatar({ member }: { member: Member }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageSrc = getAvatarImageSrc(member.avatar);
+  const fallbackText = getAvatarText(member);
+  const primaryLink = member.links.find((link) => isRealLink(link.href));
+  const primaryHref = primaryLink?.href.trim();
+  const content =
+    imageSrc && !imageFailed ? (
+      <img
+        src={imageSrc}
+        alt={`${member.name}头像`}
+        className="size-full object-cover"
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        onError={() => setImageFailed(true)}
+      />
+    ) : (
+      <span className="px-1 text-center leading-none">{fallbackText}</span>
+    );
+  const avatarClassName =
+    "member-avatar grid size-12 overflow-hidden place-items-center border border-paper/16 bg-ink font-mono text-base font-black text-paper";
+
+  if (!primaryLink || !primaryHref) {
+    return <div className={avatarClassName}>{content}</div>;
+  }
+
+  return (
+    <a
+      href={primaryHref}
+      className={classNames(
+        avatarClassName,
+        "transition hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal",
+      )}
+      aria-label={`打开${member.name}的${primaryLink.label}`}
+      title={primaryLink.label}
+      target={primaryHref.startsWith("http") ? "_blank" : undefined}
+      rel={primaryHref.startsWith("http") ? "noreferrer" : undefined}
+    >
+      {content}
+    </a>
   );
 }
 

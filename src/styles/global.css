@@ -91,6 +91,92 @@ select {
   text-orientation: mixed;
 }
 
+.xl-stage-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.xl-stage-bar {
+  width: min(1180px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.xl-stage-left-rail,
+.xl-stage-right-rail {
+  top: 4rem;
+  bottom: 5rem;
+  width: max(10vw, 6rem);
+}
+
+.xl-stage-left-rail {
+  left: 0;
+}
+
+.xl-stage-right-rail {
+  right: 0;
+}
+
+.xl-stage-main {
+  top: 4rem;
+  right: max(10vw, 6rem);
+  bottom: 5rem;
+  left: max(10vw, 6rem);
+}
+
+.member-avatar {
+  color: #f5f2ea;
+}
+
+.member-avatar img {
+  display: block;
+  background: rgba(245, 242, 234, 0.08);
+}
+
+[data-stage="mobile"] .xl-stage-bar {
+  width: calc(100% - 24px);
+}
+
+[data-stage="mobile"] .xl-stage-left-rail {
+  top: 4rem;
+  bottom: 5rem;
+  width: 54px;
+}
+
+[data-stage="mobile"] .xl-stage-right-rail {
+  top: 4rem;
+  bottom: 5rem;
+  width: 58px;
+}
+
+[data-stage="mobile"] .xl-stage-main {
+  top: 4rem;
+  right: 58px;
+  bottom: 5rem;
+  left: 54px;
+}
+
+[data-stage="mobile"] .top-page-nav {
+  display: none;
+}
+
+[data-stage="mobile"] .join-link {
+  height: 2.25rem;
+  padding-inline: 0.75rem;
+}
+
+[data-stage="mobile"] .stage-marker {
+  top: 1.25rem;
+}
+
+[data-stage="mobile"] .stage-marker span:nth-child(2) {
+  width: 3rem;
+}
+
+[data-stage="mobile"] .about-scroll {
+  max-height: 360px;
+}
+
 .stage-scroll {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -115,6 +201,13 @@ select {
 
 .about-scroll::-webkit-scrollbar-thumb {
   background: rgba(92, 198, 184, 0.72);
+}
+
+.member-intro {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 @media (prefers-reduced-motion: reduce) {

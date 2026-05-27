@@ -1,4 +1,6 @@
 export type MemberTrack = "安全研究" | "工程开发" | "视觉设计" | "组织运营";
+export type PrimaryMemberTrack = Exclude<MemberTrack, "视觉设计">;
+export type MemberFilter = "全部" | PrimaryMemberTrack | "其他";
 
 export type Member = {
   id: string;
@@ -14,12 +16,16 @@ export type Member = {
   }[];
 };
 
-export const tracks: Array<"全部" | MemberTrack> = [
-  "全部",
+export const primaryMemberTracks: PrimaryMemberTrack[] = [
   "安全研究",
   "工程开发",
-  "视觉设计",
   "组织运营",
+];
+
+export const tracks: MemberFilter[] = [
+  "全部",
+  ...primaryMemberTracks,
+  "其他",
 ];
 
 export const members: Member[] = [
@@ -29,9 +35,9 @@ export const members: Member[] = [
     grade: "2026 级",
     track: "安全研究",
     role: "网站安全",
-    avatar: "星",
+    avatar: "https://tuyiblog.oss-cn-guangzhou.aliyuncs.com/blog/b_f78ab69ec3bae09d408bf9e35ffee5aa.jpg",
     intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
-    links: [{ label: "博客", href: "#" }],
+    links: [{ label: "博客", href: "http://baidu.com" }],
   },
   {
     id: "x-02",
@@ -102,5 +108,75 @@ export const members: Member[] = [
     avatar: "如",
     intro: "把分散成果整理成文档、课程材料和可检索记录，负责团队知识库质量。",
     links: [{ label: "维基", href: "#" }],
+  },
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "http://baidu.com" }],
+  },
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "http://baidu.com" }],
+  },
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "http://baidu.com" }],
+  },
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "http://baidu.com" }],
+  },
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "http://baidu.com" }],
+  },
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "http://baidu.com" }],
+  },
+  {
+    id: "x-01",
+    name: "星野",
+    grade: "2026 级",
+    track: "安全研究",
+    role: "网站安全",
+    avatar: "星",
+    intro: "关注网站漏洞利用、源码审计和题目复盘，负责沉淀可复用的攻击链笔记。",
+    links: [{ label: "博客", href: "http://baidu.com" }],
   },
 ];
