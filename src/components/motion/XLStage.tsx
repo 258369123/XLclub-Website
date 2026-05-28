@@ -538,7 +538,7 @@ function MembersPanel({
 
       <motion.div
         layout
-        className="stage-scroll -mt-3 grid min-h-0 flex-1 auto-rows-[7rem] content-start gap-3 overflow-y-auto pt-3 pr-1 pb-6 md:grid-cols-2"
+        className="stage-scroll -mt-6 grid min-h-0 flex-1 auto-rows-[7rem] content-start gap-3 overflow-y-auto pt-6 pr-1 pb-8 md:grid-cols-2"
       >
         <AnimatePresence mode="popLayout">
           {visibleMembers.map((member) => (
