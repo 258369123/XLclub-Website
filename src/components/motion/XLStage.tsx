@@ -1,7 +1,12 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { focusAreas, site, stats } from "../../data/site";
-import { honors } from "../../data/honors";
+import {
+  honorCategories,
+  honors,
+  primaryHonorCategories,
+  type HonorFilter,
+} from "../../data/honors";
 import {
   members,
   primaryMemberTracks,
@@ -29,7 +34,7 @@ const TYPEWRITER_HOLD_DELAY = 1600;
 const pages: PageMeta[] = [
   { id: "home", number: "01", label: "首页" },
   { id: "members", number: "02", label: "成员" },
-  { id: "honors", number: "03", label: "荣誉" },
+  { id: "honors", number: "03", label: "成果" },
   { id: "about", number: "04", label: "关于" },
 ];
 
@@ -92,6 +97,10 @@ function isRealLink(href?: string) {
 
 function isPrimaryMemberTrack(track: string) {
   return primaryMemberTracks.some((item) => item === track);
+}
+
+function isPrimaryHonorCategory(category: string) {
+  return primaryHonorCategories.some((item) => item === category);
 }
 
 function BrandMark() {
@@ -614,12 +623,44 @@ function MemberAvatar({ member }: { member: Member }) {
 }
 
 function HonorsPanel() {
+  const [category, setCategory] = useState<HonorFilter>("全部");
+  const visibleHonors = useMemo(() => {
+    if (category === "全部") return honors;
+    if (category === "其他") {
+      return honors.filter((honor) => !isPrimaryHonorCategory(honor.category));
+    }
+
+    return honors.filter((honor) => honor.category === category);
+  }, [category]);
+
   return (
     <div className="honors-panel flex h-full flex-col gap-5">
-      <div>
-        <h2 className="text-4xl font-black leading-none text-paper sm:text-5xl">
-          荣誉展示
-        </h2>
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+        <div>
+          <h2 className="text-4xl font-black leading-none text-paper sm:text-5xl">
+            成果展示
+          </h2>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {honorCategories.map((item) => {
+            const selected = category === item;
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setCategory(item)}
+                className={classNames(
+                  "h-10 shrink-0 border px-4 font-mono text-xs uppercase tracking-[0.18em] transition",
+                  selected
+                    ? "border-signal bg-signal text-ink"
+                    : "border-paper/14 text-fog hover:border-paper/44 hover:bg-paper/7",
+                )}
+              >
+                {item}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="honors-table stage-scroll min-h-0 flex-1 overflow-y-auto border border-paper/12">
@@ -628,7 +669,7 @@ function HonorsPanel() {
           <span>记录</span>
           <span className="text-right">结果</span>
         </div>
-        {honors.map((honor) => (
+        {visibleHonors.map((honor) => (
           <article
             key={`${honor.year}-${honor.title}`}
             className="grid grid-cols-[80px_minmax(0,1fr)_140px] gap-4 border-b border-paper/10 px-4 py-5 transition last:border-b-0 hover:bg-paper/[0.045]"
