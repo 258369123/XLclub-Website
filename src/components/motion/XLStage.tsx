@@ -538,7 +538,7 @@ function MembersPanel({
 
       <motion.div
         layout
-        className="stage-scroll grid min-h-0 flex-1 auto-rows-[7rem] content-start gap-3 overflow-y-auto pr-1 md:grid-cols-2"
+        className="stage-scroll -mt-3 grid min-h-0 flex-1 auto-rows-[7rem] content-start gap-3 overflow-y-auto pt-3 pr-1 pb-6 md:grid-cols-2"
       >
         <AnimatePresence mode="popLayout">
           {visibleMembers.map((member) => (
@@ -549,26 +549,28 @@ function MembersPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="grid h-28 overflow-hidden grid-cols-[48px_minmax(0,1fr)] gap-3 border border-paper/12 bg-paper/[0.035] p-3 transition hover:border-signal/54 hover:bg-paper/[0.055]"
+              className="member-card-shell h-28 overflow-visible"
             >
-              <MemberAvatar member={member} />
-              <div className="min-w-0 overflow-hidden">
-                <div className="flex min-w-0 items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h3 className="truncate text-lg font-semibold leading-5 text-paper">
-                      {member.name}
-                    </h3>
-                    <p className="mt-1 truncate font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
-                      {member.grade} / {member.track}
-                    </p>
+              <div className="member-card grid h-full overflow-hidden grid-cols-[48px_minmax(0,1fr)] gap-3 border border-paper/12 bg-paper/[0.035] p-3 hover:border-signal/54 hover:bg-paper/[0.055]">
+                <MemberAvatar member={member} />
+                <div className="min-w-0 overflow-hidden">
+                  <div className="flex min-w-0 items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-lg font-semibold leading-5 text-paper">
+                        {member.name}
+                      </h3>
+                      <p className="mt-1 truncate font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
+                        {member.grade} / {member.track}
+                      </p>
+                    </div>
+                    <span className="max-w-24 shrink-0 truncate border border-cobalt/50 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-cobalt">
+                      {member.role}
+                    </span>
                   </div>
-                  <span className="max-w-24 shrink-0 truncate border border-cobalt/50 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-cobalt">
-                    {member.role}
-                  </span>
+                  <p className="member-intro mt-2 text-sm leading-5 text-fog/84">
+                    {member.intro}
+                  </p>
                 </div>
-                <p className="member-intro mt-2 text-sm leading-5 text-fog/84">
-                  {member.intro}
-                </p>
               </div>
             </motion.article>
           ))}

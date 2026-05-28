@@ -128,6 +128,21 @@ select {
   background: rgba(245, 242, 234, 0.08);
 }
 
+.member-card {
+  will-change: transform;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.member-card-shell:hover .member-card,
+.member-card-shell:focus-within .member-card {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+}
+
 .typewriter-copy {
   min-height: 4.25rem;
 }
@@ -196,6 +211,14 @@ select {
 
 .about-article-section li::marker {
   color: #f5f2ea;
+}
+
+.honors-table {
+  background: rgba(16, 18, 22, 0.92);
+  box-shadow:
+    0 18px 60px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(245, 242, 234, 0.055);
+  backdrop-filter: blur(2px);
 }
 
 [data-stage="mobile"] .xl-stage-bar {
