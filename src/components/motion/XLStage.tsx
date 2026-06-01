@@ -1,5 +1,9 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import ThemeToggle from "../ThemeToggle";
+import WordmarkGlyph from "../WordmarkGlyph";
+import AnimatedCounter from "../AnimatedCounter";
+import MouseGradient from "../MouseGradient";
 import { focusAreas, site, stats } from "../../data/site";
 import {
   honorCategories,
@@ -37,6 +41,19 @@ const pages: PageMeta[] = [
   { id: "honors", number: "03", label: "成果" },
   { id: "about", number: "04", label: "关于" },
 ];
+
+function getPageFromURL(): PageId {
+  if (typeof window === "undefined") return "home";
+  const path = window.location.pathname.replace(/\/$/, "");
+  if (path === "/members") return "members";
+  if (path === "/honors") return "honors";
+  if (path === "/about") return "about";
+  return "home";
+}
+
+function getURLForPage(pageId: PageId): string {
+  return pageId === "home" ? "/" : `/${pageId}`;
+}
 
 const pageVariants = {
   enter: { opacity: 0, x: 42 },
@@ -190,9 +207,24 @@ function TypewriterText({ lines }: { lines: string[] }) {
 }
 
 export default function XLStage() {
-  const [page, setPage] = useState<PageId>("home");
+  const [page, setPage] = useState<PageId>(getPageFromURL);
   const [track, setTrack] = useState<ActiveTrack>("全部");
   const [viewport, setViewport] = useState({ width: 1280, height: 720 });
+
+  const navigateTo = useCallback((pageId: PageId) => {
+    setPage(pageId);
+    const url = getURLForPage(pageId);
+    if (window.location.pathname !== url) {
+      window.history.pushState(null, "", url);
+    }
+  }, []);
+
+  /* sync page state with browser back/forward */
+  useEffect(() => {
+    const onPopState = () => setPage(getPageFromURL());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   useEffect(() => {
     const updateViewport = () => {
@@ -262,11 +294,11 @@ export default function XLStage() {
             <div className="xl-stage-bar flex h-16 items-center justify-between gap-4">
               <button
                 type="button"
-                onClick={() => setPage("home")}
+                onClick={() => navigateTo("home")}
                 className="flex items-center gap-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
                 aria-label="返回首页"
               >
-                <span className="grid size-9 place-items-center border border-paper/20 bg-paper text-ink">
+                <span className="grid size-9 place-items-center border border-paper/20 bg-transparent text-ink">
                   <BrandMark />
                 </span>
                 <span className="brand-text leading-none">
@@ -284,7 +316,7 @@ export default function XLStage() {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setPage(item.id)}
+                    onClick={() => navigateTo(item.id)}
                     className={classNames(
                       "px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal",
                       page === item.id
@@ -297,12 +329,15 @@ export default function XLStage() {
                 ))}
               </div>
 
-              <a
-                href={site.join}
-                className="join-link inline-flex h-10 items-center gap-2 border border-signal bg-signal px-4 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-ink transition hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
-              >
-                加入我们
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href={site.join}
+                  className="join-link inline-flex h-10 items-center gap-2 border border-signal bg-signal px-4 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-ink transition hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+                >
+                  加入我们
+                </a>
+                <ThemeToggle />
+              </div>
             </div>
           </header>
 
@@ -330,7 +365,7 @@ export default function XLStage() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setPage(item.id)}
+                  onClick={() => navigateTo(item.id)}
                   className={classNames(
                     "vertical-label border-l px-4 py-2 font-mono text-xs tracking-[0.28em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal",
                     page === item.id
@@ -343,7 +378,7 @@ export default function XLStage() {
               ))}
               <button
                 type="button"
-                onClick={() => setPage(nextPage.id)}
+                onClick={() => navigateTo(nextPage.id)}
                 className="mt-8 grid size-14 place-items-center border border-paper/18 bg-ink text-paper transition hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
                 aria-label={`切换到${nextPage.label}`}
               >
@@ -356,7 +391,15 @@ export default function XLStage() {
 
           <footer className="absolute bottom-0 left-0 right-0 z-20 border-t border-paper/12 bg-ink/82 backdrop-blur-md">
             <div className="xl-stage-bar flex h-20 items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
-              <span>联系 / 公开邮箱</span>
+              <span>
+                <a
+                  href={`mailto:${site.email}`}
+                  className="transition hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+                >
+                  联系我们 / {site.email}
+                </a>
+                <span className="term-cursor" aria-hidden="true" />
+              </span>
               <span>
                 {activePage.number} / {activePage.label}
               </span>
@@ -409,8 +452,8 @@ function HomePanel() {
         <p className="font-mono text-xs font-semibold uppercase tracking-[0.32em] text-signal">
           {site.eyebrow}
         </p>
-        <h1 className="mt-6 text-6xl font-black leading-[0.9] tracking-normal text-paper sm:text-7xl xl:text-8xl">
-          {site.name}
+        <h1 className="mt-6 text-6xl font-black leading-[0.9] tracking-normal sm:text-7xl xl:text-8xl">
+          <MouseGradient>{site.name}</MouseGradient>
         </h1>
         <TypewriterText lines={site.typewriterLines} />
         <div className="mt-8 flex flex-wrap gap-3">
@@ -434,7 +477,7 @@ function HomePanel() {
               className="border-paper/12 py-5 pr-4 sm:border-r sm:last:border-r-0"
             >
               <div className="font-mono text-2xl font-bold text-paper">
-                {stat.value}
+                <AnimatedCounter value={stat.value} />
               </div>
               <div className="mt-2 text-xs uppercase tracking-[0.18em] text-steel">
                 {stat.label}
@@ -445,11 +488,7 @@ function HomePanel() {
       </div>
 
       <div className="relative hidden min-h-[360px] overflow-hidden border border-paper/12 bg-paper/[0.035] p-4 lg:block xl:min-h-[520px]">
-        <img
-          src="/xlclub-wordmark.svg"
-          alt={`${site.name} 几何字标`}
-          className="absolute inset-x-6 top-6 h-auto w-[calc(100%-48px)] border border-paper/10 object-cover opacity-90"
-        />
+        <WordmarkGlyph className="absolute inset-x-6 top-6 h-auto w-[calc(100%-48px)] opacity-90" />
         <div className="absolute bottom-4 left-4 right-4 grid gap-2 sm:grid-cols-2">
           {focusAreas.map((area, index) => (
             <div
@@ -474,21 +513,51 @@ function AboutPanel() {
       <div className="about-scroll about-article h-full min-h-0 min-w-0 overflow-y-auto pr-4">
         <div className="about-article-head">
           <h3>{aboutContent.title}</h3>
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-fog/70">
+            {aboutContent.lead}
+          </p>
         </div>
-        <div className="space-y-8 py-6">
-          {aboutContent.sections.map((section) => (
-            <section key={section.title} className="about-article-section">
-              <h4>{section.title}</h4>
-              {section.paragraphs?.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-              {section.items && (
-                <ul>
-                  {section.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              )}
+
+        {/* 数据快照 */}
+        <div className="my-8 grid grid-cols-2 gap-px border border-paper/10 bg-paper/10 sm:grid-cols-4">
+          {stats.map((stat) => (
+            <div key={stat.label} className="bg-ink px-4 py-5">
+              <div className="font-mono text-2xl font-bold text-signal">
+                <AnimatedCounter value={stat.value} />
+              </div>
+              <div className="mt-1.5 text-[10px] uppercase tracking-[0.22em] text-steel">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 正文区 —— 左右交替布局 */}
+        <div className="space-y-10 py-4">
+          {aboutContent.sections.map((section, index) => (
+            <section
+              key={section.title}
+              className="about-article-section grid gap-4 md:grid-cols-[140px_1fr] md:gap-8"
+            >
+              <div className="flex items-start gap-3 md:flex-col md:gap-1">
+                <span
+                  className="mt-[3px] block h-3 w-3 shrink-0"
+                  style={{ background: "var(--color-signal)" }}
+                />
+                <h4 className="!mb-0 md:!mt-0">{section.title}</h4>
+              </div>
+              <div>
+                {section.paragraphs?.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+                {section.items && (
+                  <ul className={index % 2 === 0 ? "" : "md:grid-cols-2 md:grid"}>
+                    {section.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </section>
           ))}
         </div>
@@ -506,6 +575,17 @@ function MembersPanel({
   setTrack: (track: ActiveTrack) => void;
   visibleMembers: typeof members;
 }) {
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+
+  useEffect(() => {
+    if (!selectedMember) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedMember(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedMember]);
+
   return (
     <div className="flex h-full flex-col gap-5">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -549,7 +629,8 @@ function MembersPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="member-card-shell h-28 overflow-visible"
+              className="member-card-shell h-28 overflow-visible cursor-pointer"
+              onClick={() => setSelectedMember(member)}
             >
               <div className="member-card grid h-full overflow-hidden grid-cols-[48px_minmax(0,1fr)] gap-3 border border-paper/12 bg-paper/[0.035] p-3 hover:border-signal/54 hover:bg-paper/[0.055]">
                 <MemberAvatar member={member} />
@@ -576,6 +657,89 @@ function MembersPanel({
           ))}
         </AnimatePresence>
       </motion.div>
+
+      {/* 成员详情弹窗 */}
+      <AnimatePresence>
+        {selectedMember && (
+          <motion.div
+            key="member-detail-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="absolute inset-0 z-30 flex items-center justify-center bg-ink/78 backdrop-blur-sm"
+            onClick={() => setSelectedMember(null)}
+          >
+            <motion.div
+              key="member-detail-card"
+              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="mx-4 w-full max-w-md border border-paper/16 bg-ink px-8 py-8 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 头像 */}
+              <div className="mx-auto mb-6 grid size-24 place-items-center overflow-hidden border border-paper/12 bg-paper/[0.06]">
+                {getAvatarImageSrc(selectedMember.avatar) ? (
+                  <img
+                    src={getAvatarImageSrc(selectedMember.avatar)!}
+                    alt={`${selectedMember.name} 头像`}
+                    className="size-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="font-mono text-3xl font-black text-paper">
+                    {getAvatarText(selectedMember)}
+                  </span>
+                )}
+              </div>
+
+              <h2 className="text-center text-2xl font-black text-paper">
+                {selectedMember.name}
+              </h2>
+              <p className="mt-1 text-center font-mono text-xs uppercase tracking-[0.2em] text-steel">
+                {selectedMember.grade} / {selectedMember.track}
+              </p>
+              <span className="mx-auto mt-3 block w-fit border border-cobalt/50 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-cobalt">
+                {selectedMember.role}
+              </span>
+
+              <p className="mt-5 text-sm leading-relaxed text-fog/86">
+                {selectedMember.intro}
+              </p>
+
+              {/* 链接 */}
+              {selectedMember.links.filter((l) => isRealLink(l.href)).length >
+                0 && (
+                <div className="mt-5 flex flex-wrap gap-2 border-t border-paper/10 pt-5">
+                  {selectedMember.links
+                    .filter((l) => isRealLink(l.href))
+                    .map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border border-paper/14 px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] text-fog transition hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setSelectedMember(null)}
+                className="mt-6 block w-full border border-paper/12 py-3 font-mono text-xs uppercase tracking-[0.2em] text-steel transition hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+              >
+                关闭
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -665,33 +829,35 @@ function HonorsPanel() {
         </div>
       </div>
 
-      <div className="honors-table stage-scroll min-h-0 flex-1 overflow-y-auto border border-paper/12">
-        <div className="grid grid-cols-[80px_minmax(0,1fr)_140px] border-b border-paper/12 bg-paper/[0.055] px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
-          <span>年份</span>
-          <span>记录</span>
-          <span className="text-right">结果</span>
-        </div>
-        {visibleHonors.map((honor) => (
-          <article
-            key={`${honor.year}-${honor.title}`}
-            className="grid grid-cols-[80px_minmax(0,1fr)_140px] gap-4 border-b border-paper/10 px-4 py-5 transition last:border-b-0 hover:bg-paper/[0.045]"
-          >
-            <div className="font-mono text-sm font-semibold text-signal">
-              {honor.year}
-            </div>
-            <div className="min-w-0">
-              <h3 className="truncate text-base font-semibold text-paper">
+      <div className="stage-scroll min-h-0 flex-1 overflow-y-auto">
+        <div className="grid gap-3 md:grid-cols-2">
+          {visibleHonors.map((honor, index) => (
+            <article
+              key={`${honor.year}-${honor.title}`}
+              className="group flex flex-col border border-paper/12 bg-paper/[0.03] p-5 transition hover:border-signal/40 hover:bg-paper/[0.06]"
+            >
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <span className="font-mono text-3xl font-black text-signal/80">
+                  {honor.year}
+                </span>
+                <span className="shrink-0 border border-cobalt/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-cobalt">
+                  {honor.tag}
+                </span>
+              </div>
+              <h3 className="text-base font-semibold leading-snug text-paper">
                 {honor.title}
               </h3>
-              <p className="mt-2 truncate font-mono text-[11px] uppercase tracking-[0.18em] text-steel">
-                {honor.tag}
+              <p className="mt-2 text-sm leading-relaxed text-fog/76">
+                {honor.result}
               </p>
-            </div>
-            <div className="text-right text-sm leading-6 text-fog/82">
-              {honor.result}
-            </div>
-          </article>
-        ))}
+              {/* 底部装饰条 */}
+              <div
+                className="mt-4 h-px w-0 transition-[width] duration-300 group-hover:w-full"
+                style={{ background: "var(--color-signal)" }}
+              />
+            </article>
+          ))}
+        </div>
       </div>
     </div>
   );
