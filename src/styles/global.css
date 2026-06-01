@@ -16,12 +16,31 @@
   --color-violetline: #7f6ad8;
 }
 
+/* ── Light theme ────────────────────────────────── */
+
+[data-theme="light"] {
+  --color-ink: #f5f2ea;
+  --color-paper: #1a1d25;
+  --color-fog: #5c5750;
+  --color-steel: #4e5663;
+  --color-signal: #2d9d8f;
+  --color-coral: #c94a44;
+  --color-cobalt: #3b5f9e;
+  --color-violetline: #6652c4;
+}
+
 html {
   height: 100%;
   color-scheme: dark;
   background: #101216;
   scroll-behavior: smooth;
   overflow: hidden;
+}
+
+[data-theme="light"] html,
+html:has([data-theme="light"]) {
+  color-scheme: light;
+  background: #f5f2ea;
 }
 
 body {
@@ -56,9 +75,34 @@ body {
   text-rendering: geometricPrecision;
 }
 
+[data-theme="light"] body {
+  background:
+    linear-gradient(90deg, rgba(26, 29, 37, 0.055) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(26, 29, 37, 0.045) 1px, transparent 1px),
+    linear-gradient(
+      135deg,
+      transparent 0 54%,
+      rgba(45, 157, 143, 0.08) 54% 55%,
+      transparent 55% 100%
+    ),
+    linear-gradient(
+      28deg,
+      transparent 0 67%,
+      rgba(201, 74, 68, 0.07) 67% 68%,
+      transparent 68% 100%
+    ),
+    #f5f2ea;
+  color: #1a1d25;
+}
+
 body::selection {
   background: #5cc6b8;
   color: #101216;
+}
+
+[data-theme="light"] body::selection {
+  background: #2d9d8f;
+  color: #f5f2ea;
 }
 
 a {
@@ -79,6 +123,10 @@ select {
   background: linear-gradient(rgba(245, 242, 234, 0.025) 50%, transparent 50%);
   background-size: 100% 4px;
   mix-blend-mode: soft-light;
+}
+
+[data-theme="light"] .scanline {
+  background: linear-gradient(rgba(26, 29, 37, 0.02) 50%, transparent 50%);
 }
 
 .vertical-label {
@@ -120,12 +168,12 @@ select {
 }
 
 .member-avatar {
-  color: #f5f2ea;
+  color: var(--color-paper);
 }
 
 .member-avatar img {
   display: block;
-  background: rgba(245, 242, 234, 0.08);
+  background: color-mix(in srgb, var(--color-paper) 8%, transparent);
 }
 
 .member-card {
@@ -153,7 +201,7 @@ select {
   height: 1.05em;
   margin-left: 0.16em;
   translate: 0 0.16em;
-  background: #5cc6b8;
+  background: var(--color-signal);
   animation: typewriter-caret 1.5s steps(1) infinite;
 }
 
@@ -169,9 +217,13 @@ select {
   padding-bottom: 0.95rem;
 }
 
+[data-theme="light"] .about-article-head {
+  background: linear-gradient(180deg, #f5f2ea 0%, rgba(245, 242, 234, 0.96) 100%);
+}
+
 .about-article-head h3 {
   margin: 0;
-  color: #f5f2ea;
+  color: var(--color-paper);
   font-size: 4rem;
   font-weight: 800;
   line-height: 1;
@@ -179,7 +231,7 @@ select {
 
 .about-article-section h4 {
   margin: 0 0 0.85rem;
-  color: #5cc6b8;
+  color: var(--color-signal);
   font-size: 1.18rem;
   font-weight: 800;
   line-height: 1.35;
@@ -187,7 +239,7 @@ select {
 
 .about-article-section p {
   margin: 0;
-  color: rgba(245, 242, 234, 0.86);
+  color: color-mix(in srgb, var(--color-paper) 86%, transparent);
   font-size: 1rem;
   line-height: 1.9;
 }
@@ -201,7 +253,7 @@ select {
   gap: 0.45rem;
   margin: 0;
   padding-left: 1.15rem;
-  color: rgba(245, 242, 234, 0.86);
+  color: color-mix(in srgb, var(--color-paper) 86%, transparent);
 }
 
 .about-article-section li {
@@ -210,15 +262,7 @@ select {
 }
 
 .about-article-section li::marker {
-  color: #f5f2ea;
-}
-
-.honors-table {
-  background: rgba(16, 18, 22, 0.92);
-  box-shadow:
-    0 18px 60px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(245, 242, 234, 0.055);
-  backdrop-filter: blur(2px);
+  color: var(--color-paper);
 }
 
 [data-stage="mobile"] .xl-stage-bar {
@@ -293,10 +337,6 @@ select {
   font-size: 0.875rem;
 }
 
-[data-stage="mobile"] .honors-table {
-  max-height: 510px;
-}
-
 .stage-scroll {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -335,6 +375,10 @@ select {
   .typewriter-cursor {
     animation: none;
   }
+
+  .scanline {
+    display: none;
+  }
 }
 
 @keyframes typewriter-caret {
@@ -343,6 +387,29 @@ select {
     opacity: 1;
   }
 
+  49%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ── Terminal cursor blink ────────────────────── */
+
+.term-cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.15em;
+  margin-left: 0.12em;
+  translate: 0 0.14em;
+  background: var(--color-signal);
+  animation: term-cursor-blink 1s steps(1) infinite;
+}
+
+@keyframes term-cursor-blink {
+  0%,
+  48% {
+    opacity: 1;
+  }
   49%,
   100% {
     opacity: 0;
