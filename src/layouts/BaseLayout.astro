@@ -13,6 +13,20 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        var stored;
+        try {
+          stored = localStorage.getItem("xlclub-theme");
+        } catch (e) {}
+        var theme =
+          stored ||
+          (window.matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#101216" />
     <meta property="og:type" content="website" />
