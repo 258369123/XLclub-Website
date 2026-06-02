@@ -616,17 +616,17 @@ function MembersPanel({
         </h2>
         <div className="flex items-center gap-4 overflow-x-auto pb-1">
           {/* 职能 */}
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-2">
             {tracks.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setTrack(item)}
                 className={classNames(
-                  "shrink-0 px-3 py-1.5 text-xs transition",
+                  "h-10 shrink-0 border px-4 font-mono text-xs uppercase tracking-[0.18em] transition",
                   track === item
-                    ? "bg-signal text-ink"
-                    : "text-steel hover:bg-paper/8 hover:text-paper",
+                    ? "border-signal bg-signal text-ink"
+                    : "border-paper/14 text-fog hover:border-paper/44 hover:bg-paper/7",
                 )}
               >
                 {item}
