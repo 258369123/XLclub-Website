@@ -651,9 +651,12 @@ function MembersPanel({
                 <option
                   key={item}
                   value={item}
+                  className="bg-ink text-steel"
                   style={{
-                    backgroundColor: "#101216",
-                    color: item === grade ? "#5cc6b8" : "#6c7783",
+                    backgroundColor: "var(--color-ink)",
+                    color: item === grade
+                      ? "var(--color-signal)"
+                      : "var(--color-steel)",
                   }}
                 >
                   {item}
