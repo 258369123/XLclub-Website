@@ -209,7 +209,13 @@ function TypewriterText({ lines }: { lines: string[] }) {
 export default function XLStage() {
   const [page, setPage] = useState<PageId>(getPageFromURL);
   const [track, setTrack] = useState<ActiveTrack>("全部");
+  const [grade, setGrade] = useState("全部");
   const [viewport, setViewport] = useState({ width: 1280, height: 720 });
+
+  const grades = useMemo(
+    () => ["全部", ...new Set(members.map((m) => m.grade))],
+    [],
+  );
 
   const navigateTo = useCallback((pageId: PageId) => {
     setPage(pageId);
@@ -259,12 +265,19 @@ export default function XLStage() {
   const visibleMembers = useMemo(
     () =>
       members.filter((member) => {
-        if (track === "全部") return true;
-        if (track === "其他") return !isPrimaryMemberTrack(member.track);
+        const trackMatch =
+          track === "全部"
+            ? true
+            : track === "其他"
+              ? !isPrimaryMemberTrack(member.track)
+              : member.track === track;
 
-        return member.track === track;
+        const gradeMatch =
+          grade === "全部" ? true : member.grade === grade;
+
+        return trackMatch && gradeMatch;
       }),
-    [track],
+    [track, grade],
   );
 
   return (
@@ -432,6 +445,9 @@ export default function XLStage() {
                   <MembersPanel
                     track={track}
                     setTrack={setTrack}
+                    grade={grade}
+                    setGrade={setGrade}
+                    grades={grades}
                     visibleMembers={visibleMembers}
                   />
                 )}
@@ -569,10 +585,16 @@ function AboutPanel() {
 function MembersPanel({
   track,
   setTrack,
+  grade,
+  setGrade,
+  grades,
   visibleMembers,
 }: {
   track: ActiveTrack;
   setTrack: (track: ActiveTrack) => void;
+  grade: string;
+  setGrade: (grade: string) => void;
+  grades: string[];
   visibleMembers: typeof members;
 }) {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
@@ -588,31 +610,70 @@ function MembersPanel({
 
   return (
     <div className="flex h-full flex-col gap-5">
-      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-        <div>
-          <h2 className="text-4xl font-black leading-none text-paper sm:text-5xl">
-            成员展示
-          </h2>
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {tracks.map((item) => {
-            const selected = track === item;
-            return (
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <h2 className="text-4xl font-black leading-none text-paper sm:text-5xl">
+          成员展示
+        </h2>
+        <div className="flex items-center gap-4 overflow-x-auto pb-1">
+          {/* 职能 */}
+          <div className="flex shrink-0 items-center gap-1">
+            {tracks.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setTrack(item)}
                 className={classNames(
-                  "h-10 shrink-0 border px-4 font-mono text-xs uppercase tracking-[0.18em] transition",
-                  selected
-                    ? "border-signal bg-signal text-ink"
-                    : "border-paper/14 text-fog hover:border-paper/44 hover:bg-paper/7",
+                  "shrink-0 px-3 py-1.5 text-xs transition",
+                  track === item
+                    ? "bg-signal text-ink"
+                    : "text-steel hover:bg-paper/8 hover:text-paper",
                 )}
               >
                 {item}
               </button>
-            );
-          })}
+            ))}
+          </div>
+
+          {/* 分隔 */}
+          <span className="h-4 w-px shrink-0 bg-paper/14" />
+
+          {/* 年级下拉 */}
+          <div className="group relative shrink-0">
+            <select
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+              className={classNames(
+                "cursor-pointer appearance-none border-0 bg-transparent py-1.5 pr-5 text-center font-mono text-xs transition focus:outline-none",
+                grade === "全部" ? "text-steel" : "text-signal",
+              )}
+            >
+              {grades.map((item) => (
+                <option
+                  key={item}
+                  value={item}
+                  style={{
+                    backgroundColor: "#101216",
+                    color: item === grade ? "#5cc6b8" : "#6c7783",
+                  }}
+                >
+                  {item}
+                </option>
+              ))}
+            </select>
+            <svg
+              className={classNames(
+                "pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 transition",
+                grade === "全部" ? "text-steel" : "text-signal",
+              )}
+              width="8"
+              height="5"
+              viewBox="0 0 8 5"
+              fill="none"
+            >
+              <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+            <span className="absolute inset-x-0 bottom-0 h-px scale-x-0 bg-signal/60 transition-transform group-hover:scale-x-100" />
+          </div>
         </div>
       </div>
 
