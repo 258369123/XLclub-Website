@@ -213,7 +213,7 @@ export default function XLStage() {
   const [viewport, setViewport] = useState({ width: 1280, height: 720 });
 
   const grades = useMemo(
-    () => ["全部", ...new Set(members.map((m) => m.grade))],
+    () => ["全部", ...new Set(members.map((m) => m.grade).filter((g) => g.endsWith("级")))],
     [],
   );
 
@@ -768,6 +768,12 @@ function MembersPanel({
               <span className="mx-auto mt-3 block w-fit border border-cobalt/50 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-cobalt">
                 {selectedMember.role}
               </span>
+
+              {selectedMember.motto && (
+                <p className="mt-3 border-l-2 border-signal/40 pl-3 font-mono text-xs italic leading-relaxed text-signal/80">
+                  {selectedMember.motto}
+                </p>
+              )}
 
               <p className="mt-5 text-sm leading-relaxed text-fog/86">
                 {selectedMember.intro}

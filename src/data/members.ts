@@ -1,4 +1,4 @@
-export type MemberTrack = "竞赛" | "开发" | "运营" | "视觉设计";
+export type MemberTrack = "导师" | "竞赛" | "开发" | "运营" | "视觉设计";
 export type PrimaryMemberTrack = Exclude<MemberTrack, "视觉设计">;
 export type MemberFilter = "全部" | PrimaryMemberTrack | "其他";
 
@@ -10,6 +10,7 @@ export type Member = {
   role: string;
   avatar: string;
   intro: string;
+  motto?: string;
   links: {
     label: string;
     href: string;
@@ -17,6 +18,7 @@ export type Member = {
 };
 
 export const primaryMemberTracks: PrimaryMemberTrack[] = [
+  "导师",
   "竞赛",
   "开发",
   "运营",
@@ -25,6 +27,30 @@ export const primaryMemberTracks: PrimaryMemberTrack[] = [
 export const tracks: MemberFilter[] = ["全部", ...primaryMemberTracks, "其他"];
 
 export const members: Member[] = [
+  {
+    id: "m-01",
+    name: "周聪",
+    grade: "2020 年入职",
+    track: "导师",
+    role: "二进制安全",
+    avatar: "https://picsum.photos/seed/mentor-shen/200/200",
+    intro:
+      "十年安全攻防经验，专注二进制漏洞挖掘与高级利用技术。主持团队竞赛训练与研究方向规划，主张由浅入深、复现驱动的学习路径。",
+    motto: "漏洞永远在细节里",
+    links: [{ label: "主页", href: "#" }],
+  },
+  {
+    id: "m-02",
+    name: "顾霜",
+    grade: "2020 年入职",
+    track: "导师",
+    role: "云原生安全",
+    avatar: "https://picsum.photos/seed/mentor-gu/200/200",
+    intro:
+      "前云厂商安全架构师，研究方向覆盖容器逃逸、服务网格安全与云上攻防链路。负责团队基建安全与平台工程方向的技术指导。",
+    motto: "基础设施安全决定上层建筑",
+    links: [{ label: "主页", href: "#" }],
+  },
   {
     id: "x-01",
     name: "星野",
@@ -107,5 +133,15 @@ export const members: Member[] = [
     avatar: "https://picsum.photos/seed/knowledge-base/200/200",
     intro: "把分散成果整理成文档、课程材料和可检索记录，负责团队知识库质量。",
     links: [{ label: "维基", href: "#" }],
+  },
+  {
+    id: "x-09",
+    name: "鹤鸣",
+    grade: "2022 级",
+    track: "开发",
+    role: "后端架构",
+    avatar: "https://picsum.photos/seed/backend-arch/200/200",
+    intro: "负责团队训练平台后端与内部工具链建设，追求稳定、可维护的服务架构。",
+    links: [{ label: "代码", href: "#" }],
   },
 ];
