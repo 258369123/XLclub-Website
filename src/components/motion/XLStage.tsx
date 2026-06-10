@@ -34,6 +34,7 @@ const MOBILE_STAGE_BREAKPOINT = 900;
 const TYPEWRITER_TYPE_DELAY = 52;
 const TYPEWRITER_DELETE_DELAY = 28;
 const TYPEWRITER_HOLD_DELAY = 1600;
+const DEFAULT_AVATAR_IMAGE = "https://picsum.photos/seed/default_member/200/200";
 
 const pages: PageMeta[] = [
   { id: "home", number: "01", label: "首页" },
@@ -86,10 +87,19 @@ function isImageAvatar(value: string) {
   );
 }
 
+function isDefaultAvatarImage(value: string) {
+  return (
+    value.trim().replace(/[?#].*$/, "").replace(/\/$/, "") ===
+    DEFAULT_AVATAR_IMAGE
+  );
+}
+
 function getAvatarImageSrc(value: string) {
   const avatar = value.trim();
 
-  if (!avatar || !isImageAvatar(avatar)) return null;
+  if (!avatar || isDefaultAvatarImage(avatar) || !isImageAvatar(avatar)) {
+    return null;
+  }
   if (
     avatar.startsWith("http://") ||
     avatar.startsWith("https://") ||
@@ -598,6 +608,8 @@ function MembersPanel({
   visibleMembers: typeof members;
 }) {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [selectedAvatarImageFailed, setSelectedAvatarImageFailed] =
+    useState(false);
 
   useEffect(() => {
     if (!selectedMember) return;
@@ -607,6 +619,14 @@ function MembersPanel({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [selectedMember]);
+
+  useEffect(() => {
+    setSelectedAvatarImageFailed(false);
+  }, [selectedMember?.id, selectedMember?.avatar]);
+
+  const selectedAvatarImageSrc = selectedMember
+    ? getAvatarImageSrc(selectedMember.avatar)
+    : null;
 
   return (
     <div className="flex h-full flex-col gap-5">
@@ -745,12 +765,13 @@ function MembersPanel({
             >
               {/* 头像 */}
               <div className="mx-auto mb-6 grid size-24 place-items-center overflow-hidden border border-paper/12 bg-paper/[0.06]">
-                {getAvatarImageSrc(selectedMember.avatar) ? (
+                {selectedAvatarImageSrc && !selectedAvatarImageFailed ? (
                   <img
-                    src={getAvatarImageSrc(selectedMember.avatar)!}
+                    src={selectedAvatarImageSrc}
                     alt={`${selectedMember.name} 头像`}
                     className="size-full object-cover"
                     referrerPolicy="no-referrer"
+                    onError={() => setSelectedAvatarImageFailed(true)}
                   />
                 ) : (
                   <span className="font-mono text-3xl font-black text-paper">
