@@ -4,3 +4,4 @@ dist/
 *.log
 verification-*.png
 .env*
+*.xlsx
