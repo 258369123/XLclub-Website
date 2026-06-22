@@ -324,7 +324,7 @@ export const members: Member[] = [
 },
 
 {
-  id: "member-45",
+  id: "member-48",
   name: "middle",
   grade: "2025级",
   track: "竞赛",
