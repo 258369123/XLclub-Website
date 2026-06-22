@@ -9,6 +9,7 @@ import {
   honorCategories,
   honors,
   primaryHonorCategories,
+  type Honor,
   type HonorFilter,
 } from "../../data/honors";
 import {
@@ -274,19 +275,31 @@ export default function XLStage() {
 
   const visibleMembers = useMemo(
     () =>
-      members.filter((member) => {
-        const trackMatch =
-          track === "全部"
-            ? true
-            : track === "其他"
-              ? !isPrimaryMemberTrack(member.track)
-              : member.track === track;
+      members
+        .filter((member) => {
+          const trackMatch =
+            track === "全部"
+              ? true
+              : track === "其他"
+                ? !isPrimaryMemberTrack(member.track)
+                : member.track === track;
 
-        const gradeMatch =
-          grade === "全部" ? true : member.grade === grade;
+          const gradeMatch =
+            grade === "全部" ? true : member.grade === grade;
 
-        return trackMatch && gradeMatch;
-      }),
+          return trackMatch && gradeMatch;
+        })
+        .sort((a, b) => {
+          // 导师优先
+          const aIsMentor = a.track === "导师" ? 0 : 1;
+          const bIsMentor = b.track === "导师" ? 0 : 1;
+          if (aIsMentor !== bIsMentor) return aIsMentor - bIsMentor;
+          // 年级升序：2022 → 2025
+          const gradeCmp = a.grade.localeCompare(b.grade, "zh");
+          if (gradeCmp !== 0) return gradeCmp;
+          // 同年级按姓名排序
+          return a.name.localeCompare(b.name, "zh");
+        }),
     [track, grade],
   );
 
@@ -881,14 +894,32 @@ function MemberAvatar({ member }: { member: Member }) {
 
 function HonorsPanel() {
   const [category, setCategory] = useState<HonorFilter>("全部");
+  const [selectedHonor, setSelectedHonor] = useState<Honor | null>(null);
   const visibleHonors = useMemo(() => {
-    if (category === "全部") return honors;
-    if (category === "其他") {
-      return honors.filter((honor) => !isPrimaryHonorCategory(honor.category));
+    let filtered: Honor[];
+    if (category === "全部") {
+      filtered = honors;
+    } else if (category === "其他") {
+      filtered = honors.filter((honor) => !isPrimaryHonorCategory(honor.category));
+    } else {
+      filtered = honors.filter((honor) => honor.category === category);
     }
-
-    return honors.filter((honor) => honor.category === category);
+    // Sort by year descending (newest first), then by title for stable order
+    return [...filtered].sort((a, b) => {
+      const yearCmp = parseInt(b.year) - parseInt(a.year);
+      if (yearCmp !== 0) return yearCmp;
+      return a.title.localeCompare(b.title, "zh");
+    });
   }, [category]);
+
+  useEffect(() => {
+    if (!selectedHonor) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedHonor(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedHonor]);
 
   return (
     <div className="honors-panel flex h-full flex-col gap-5">
@@ -922,10 +953,11 @@ function HonorsPanel() {
 
       <div className="stage-scroll min-h-0 flex-1 overflow-y-auto">
         <div className="grid gap-3 md:grid-cols-2">
-          {visibleHonors.map((honor, index) => (
+          {visibleHonors.map((honor) => (
             <article
-              key={`${honor.year}-${honor.title}`}
-              className="group flex flex-col border border-paper/12 bg-paper/[0.03] p-5 transition hover:border-signal/40 hover:bg-paper/[0.06]"
+              key={honor.id}
+              className="group flex cursor-pointer flex-col border border-paper/12 bg-paper/[0.03] p-5 transition hover:border-signal/40 hover:bg-paper/[0.06]"
+              onClick={() => setSelectedHonor(honor)}
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <span className="font-mono text-3xl font-black text-signal/80">
@@ -950,6 +982,90 @@ function HonorsPanel() {
           ))}
         </div>
       </div>
+
+      {/* 荣誉详情弹窗 */}
+      <AnimatePresence>
+        {selectedHonor && (
+          <motion.div
+            key="honor-detail-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="absolute inset-0 z-30 flex items-center justify-center bg-ink/78 backdrop-blur-sm"
+            onClick={() => setSelectedHonor(null)}
+          >
+            <motion.div
+              key="honor-detail-card"
+              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="mx-4 w-full max-w-lg border border-paper/16 bg-ink px-8 py-8 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 年份 */}
+              <div className="mx-auto mb-4 flex items-center justify-center">
+                <span className="font-mono text-5xl font-black text-signal">
+                  {selectedHonor.year}
+                </span>
+              </div>
+
+              <h2 className="text-center text-xl font-bold leading-snug text-paper">
+                {selectedHonor.title}
+              </h2>
+
+              {/* 结果 */}
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <span className="border border-signal/60 px-3 py-1.5 text-sm font-semibold text-signal">
+                  {selectedHonor.result}
+                </span>
+              </div>
+
+              {/* 标签与分类 */}
+              <div className="mt-4 flex items-center justify-center gap-3">
+                <span className="border border-cobalt/40 px-3 py-1 font-mono text-xs uppercase tracking-[0.18em] text-cobalt">
+                  {selectedHonor.tag}
+                </span>
+                <span className="border border-paper/14 px-3 py-1 font-mono text-xs uppercase tracking-[0.18em] text-steel">
+                  {selectedHonor.category}
+                </span>
+              </div>
+
+              {/* 分隔线 */}
+              <div className="mt-6 h-px bg-paper/12" />
+
+              {/* 信息行 */}
+              <div className="mt-5 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-steel">年份</span>
+                  <span className="font-mono text-paper">{selectedHonor.year}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-steel">分类</span>
+                  <span className="font-mono text-paper">{selectedHonor.category}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-steel">标签</span>
+                  <span className="font-mono text-paper">{selectedHonor.tag}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-steel">成果</span>
+                  <span className="font-mono font-semibold text-signal">{selectedHonor.result}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedHonor(null)}
+                className="mt-6 block w-full border border-paper/12 py-3 font-mono text-xs uppercase tracking-[0.2em] text-steel transition hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+              >
+                关闭
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
