@@ -224,7 +224,12 @@ export default function XLStage() {
   const [viewport, setViewport] = useState({ width: 1280, height: 720 });
 
   const grades = useMemo(
-    () => ["全部", ...new Set(members.map((m) => m.grade).filter((g) => g.endsWith("级")))],
+    () => [
+      "全部",
+      ...[...new Set(members.map((m) => m.grade).filter((g) => g.endsWith("级")))].sort(
+        (a, b) => a.localeCompare(b, "zh"),
+      ),
+    ],
     [],
   );
 
