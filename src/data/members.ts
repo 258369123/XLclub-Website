@@ -1,4 +1,4 @@
-export type MemberTrack = "导师" | "竞赛" | "开发" | "运营" | "美工";
+export type MemberTrack = "导师" | "竞赛" | "开发" | "美工";
 export type PrimaryMemberTrack = Exclude<MemberTrack, "美工">;
 export type MemberFilter = "全部" | PrimaryMemberTrack | "其他";
 
@@ -21,7 +21,6 @@ export const primaryMemberTracks: PrimaryMemberTrack[] = [
   "导师",
   "竞赛",
   "开发",
-  "运营",
 ];
 
 export const tracks: MemberFilter[] = ["全部", ...primaryMemberTracks, "其他"];
@@ -551,6 +550,50 @@ export const members: Member[] = [
   role: "竞赛",
   avatar: "https://i0.hdslb.com/bfs/article/4bd778b14ed3c06ac447fb75d606a6b48763286f.jpg",
   intro: "owo",
+  links: [],
+},
+
+{
+  id: "member-49",
+  name: "吟",
+  grade: "2025级",
+  track: "竞赛",
+  role: "ACM",
+  avatar: "https://i.imgant.com/v2/cq7GTej.png",
+  intro: "to distant peaks",
+  links: [],
+},
+
+{
+  id: "member-50",
+  name: "zzx",
+  grade: "2025级",
+  track: "竞赛",
+  role: "ACM",
+  avatar: "https://user8758.cn.imgto.link/public/20260622/mmexport1775289190274-edit-663987121251395.avif",
+  intro: "真相只有一个",
+  links: [{ label: "博客", href: "https://blog.csdn.net/2501_93710476" }],
+},
+
+{
+  id: "member-51",
+  name: "Estella",
+  grade: "2025级",
+  track: "竞赛",
+  role: "ACM",
+  avatar: "https://pic.82314912.xyz/api/cfile/AgACAgEAAyEGAATEcCnBAAI5IWo550MfTUOLLSa-UkdPkrWu5Oa_AAJBDGsb-cHQRX7tPz4Rcx-uAQADAgADeAADPAQ",
+  intro: "AC好不好",
+  links: [],
+},
+
+{
+  id: "member-52",
+  name: "mo",
+  grade: "2025级",
+  track: "竞赛",
+  role: "ACM",
+  avatar: "https://cdn.jsdelivr.net/gh/Asuka1345/image@main/202606231951439.jpg",
+  intro: "zzz",
   links: [],
 },
 ];
