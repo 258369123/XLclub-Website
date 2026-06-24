@@ -52,9 +52,9 @@ export const members: Member[] = [
   name: "Qeeyl",
   grade: "2023级",
   track: "竞赛",
-  role: "竞赛",
-  avatar: "",
-  intro: "成为网安糕手",
+  role: "竞赛组",
+  avatar: "https://raw.githubusercontent.com/Q1yl/yanqo/main/11.jpg",
+  intro: "励志成为网安糕手",
   links: [],
 },
 
@@ -594,6 +594,17 @@ export const members: Member[] = [
   role: "ACM",
   avatar: "https://cdn.jsdelivr.net/gh/Asuka1345/image@main/202606231951439.jpg",
   intro: "zzz",
+  links: [],
+},
+
+{
+  id: "member-53",
+  name: "fancy",
+  grade: "2023级",
+  track: "竞赛",
+  role: "竞赛web组",
+  avatar: "",
+  intro: "苦命打工人",
   links: [],
 },
 ];
